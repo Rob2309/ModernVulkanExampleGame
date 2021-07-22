@@ -29,6 +29,9 @@ namespace Graphics::Manager {
 	/// <returns>The Vulkan Device in use</returns>
 	[[nodiscard]] vk::Device GetDevice();
 
+	/// <summary>
+	/// Blocks until the Vulkan Device is idling, must be called before destroying e.g. a swapchain.
+	/// </summary>
 	void WaitIdle();
 
 }

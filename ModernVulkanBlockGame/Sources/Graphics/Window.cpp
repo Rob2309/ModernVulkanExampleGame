@@ -42,6 +42,11 @@ namespace Graphics {
 		}
 		m_Surface = surface;
 
+		/*
+		 * We double check here that the selected graphics queue family supports presenting to the window surface.
+		 * On every platform I know of, the check in Manager::IsPhysicalDeviceSuitable() guarantees that this is always true,
+		 * but the Vulkan spec does not guarantee this, which is why the validation layers will complain if we do not include this check.
+		 */
 		auto supported = Manager::GetPhysicalDevice().getSurfaceSupportKHR(Manager::GetGraphicsQueueFamily(), m_Surface);
 		if(!supported) {
 			Log::Error("Window surface not supported by graphics queue family");
@@ -65,16 +70,21 @@ namespace Graphics {
 		}
 		m_Format = swapchainFormat;
 
+		// On windows and X11, currentExtent will never be (UINT32_MAX, UINT32_MAX).
 		m_SwapchainExtent = caps.currentExtent;
 
+		// Select apropriate swapchain image count
 		uint32_t imageCount = 3;
 		if (imageCount < caps.minImageCount)
 			imageCount = caps.minImageCount;
+		// maxImageCount may be zero when there is no max image count, so we need an extra check.
 		if (caps.maxImageCount > 0 && imageCount > caps.maxImageCount)
 			imageCount = caps.maxImageCount;
 
+		// Fifo must always be supported, so we use this as default.
 		vk::PresentModeKHR presentMode = vk::PresentModeKHR::eFifo;
 		for(const auto& mode : modes) {
+			// Mailbox is our most preferred mode, if supported we just break.
 			if(mode == vk::PresentModeKHR::eMailbox) {
 				presentMode = mode;
 				break;
@@ -118,10 +128,10 @@ namespace Graphics {
 		: m_Window{std::exchange(r.m_Window, nullptr)},
 	      m_Surface{std::exchange(r.m_Surface, nullptr)},
 		  m_Swapchain{std::exchange(r.m_Swapchain, nullptr)},
-	      m_SwapchainImages{std::move(r.m_SwapchainImages)},
-	      m_SwapchainImageViews{std::move(r.m_SwapchainImageViews)},
 		  m_Format{r.m_Format},
-		  m_SwapchainExtent{r.m_SwapchainExtent}
+		  m_SwapchainExtent{r.m_SwapchainExtent},
+	      m_SwapchainImages{std::move(r.m_SwapchainImages)},
+	      m_SwapchainImageViews{std::move(r.m_SwapchainImageViews)}
 	{ }
 
 	Window& Window::operator=(Window&& r) noexcept {
@@ -165,6 +175,7 @@ namespace Graphics {
 	}
 
 	void Window::ResizeSwapchain() {
+		// Destroy old ImageViews
 		for (const auto& v : m_SwapchainImageViews)
 			Manager::GetDevice().destroyImageView(v);
 		m_SwapchainImageViews.clear();
@@ -200,7 +211,7 @@ namespace Graphics {
 			caps.currentTransform, vk::CompositeAlphaFlagBitsKHR::eOpaque,
 			presentMode,
 			true,
-			m_Swapchain
+			m_Swapchain // pass old swapchain so that is gets automatically recycled.
 		};
 		m_Swapchain = Manager::GetDevice().createSwapchainKHR(swapchainInfo);
 
