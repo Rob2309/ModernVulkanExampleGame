@@ -44,7 +44,7 @@ namespace Graphics {
 
 		/*
 		 * We double check here that the selected graphics queue family supports presenting to the window surface.
-		 * On every platform I know of, the check in Manager::IsPhysicalDeviceSuitable() guarantees that this is always true,
+		 * On every platform I know of, the check in Manager::IsPhysicalDeviceSuitable() de-facto guarantees that this is always true,
 		 * but the Vulkan spec does not guarantee this, which is why the validation layers will complain if we do not include this check.
 		 */
 		auto supported = Manager::GetPhysicalDevice().getSurfaceSupportKHR(Manager::GetGraphicsQueueFamily(), m_Surface);
