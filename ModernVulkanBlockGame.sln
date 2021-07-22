@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31507.150
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModernVulkanBlockGame", "ModernVulkanBlockGame\ModernVulkanBlockGame.vcxproj", "{BCEED692-539E-43D1-9680-81B50F155F3E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BCEED692-539E-43D1-9680-81B50F155F3E}.Debug|x64.ActiveCfg = Debug|x64
+		{BCEED692-539E-43D1-9680-81B50F155F3E}.Debug|x64.Build.0 = Debug|x64
+		{BCEED692-539E-43D1-9680-81B50F155F3E}.Release|x64.ActiveCfg = Release|x64
+		{BCEED692-539E-43D1-9680-81B50F155F3E}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {78EFE900-989E-4D3E-BF82-34003BF4ED23}
+	EndGlobalSection
+EndGlobal
