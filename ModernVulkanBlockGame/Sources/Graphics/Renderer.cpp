@@ -132,7 +132,7 @@ namespace Graphics::Renderer {
 		 */
 
 		// waitForFences should always return Success, compiler will complain anyways if we don't use the result.
-		assert(dev.waitForFences(g_FrameResourceFences[g_FrameCounter], true, UINT64_MAX) == vk::Result::eSuccess);
+		auto ignore = dev.waitForFences(g_FrameResourceFences[g_FrameCounter], true, UINT64_MAX) == vk::Result::eSuccess;
 		dev.resetFences(g_FrameResourceFences[g_FrameCounter]);
 
 		uint32_t imageIndex;
