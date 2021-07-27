@@ -46,14 +46,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Build\Bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediates\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediates\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(ProjectDir)Sources\;$(VK_SDK_PATH)\Include\;$(SolutionDir)ThirdParty\GLFW\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(VK_SDK_PATH)\Lib\;$(SolutionDir)ThirdParty\GLFW\lib64\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Build\Bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediates\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediates\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(ProjectDir)Sources\;$(VK_SDK_PATH)\Include\;$(SolutionDir)ThirdParty\GLFW\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(VK_SDK_PATH)\Lib\;$(SolutionDir)ThirdParty\GLFW\lib64\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -65,11 +65,12 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -82,13 +83,14 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -104,6 +106,11 @@
     <ClInclude Include="Sources\Graphics\Renderpasses.h" />
     <ClInclude Include="Sources\Graphics\Window.h" />
     <ClInclude Include="Sources\Logging\Log.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ThirdParty\GLFW.vcxproj">
+      <Project>{d926c9c4-eedc-4205-a8a5-59132713c724}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
