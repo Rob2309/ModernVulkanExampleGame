@@ -72,6 +72,15 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>$(SolutionDir)Assets\Build.bat</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Building Assets</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>$(SolutionDir)Assets\Shaders\*.spv</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -92,9 +101,19 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>$(SolutionDir)Assets\Build.bat</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Building Assets</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>$(SolutionDir)Assets\Shaders\*.spv</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Sources\Graphics\Manager.cpp" />
+    <ClCompile Include="Sources\Graphics\PipelineCompiler.cpp" />
     <ClCompile Include="Sources\Graphics\Renderer.cpp" />
     <ClCompile Include="Sources\Graphics\Renderpasses.cpp" />
     <ClCompile Include="Sources\Graphics\Window.cpp" />
@@ -102,6 +121,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Graphics\Manager.h" />
+    <ClInclude Include="Sources\Graphics\PipelineCompiler.h" />
     <ClInclude Include="Sources\Graphics\Renderer.h" />
     <ClInclude Include="Sources\Graphics\Renderpasses.h" />
     <ClInclude Include="Sources\Graphics\Window.h" />

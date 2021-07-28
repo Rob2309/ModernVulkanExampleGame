@@ -30,6 +30,9 @@
     <ClCompile Include="Sources\Graphics\Renderpasses.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Graphics\PipelineCompiler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Logging\Log.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Graphics\Renderpasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Graphics\PipelineCompiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
