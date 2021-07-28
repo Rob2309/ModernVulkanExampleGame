@@ -38,7 +38,16 @@ namespace Graphics::Renderer {
 	/// </summary>
 	static vk::Framebuffer g_3DFramebuffer;
 
+	/// <summary>
+	/// Every Vulkan Pipeline needs a PipelineLayout that describes the layout of
+	/// the DescriptorSets that will be passed to the shaders. Since our simple
+	/// Pipeline does not use any descriptors, this Layout will be empty.
+	/// </summary>
 	static vk::PipelineLayout g_TestPipeLayout;
+	/// <summary>
+	/// A handle to our simple test GraphicsPipeline.
+	/// A vk::Pipeline is roughly equivalent to a glProgram in OpenGL.
+	/// </summary>
 	static vk::Pipeline g_TestPipe;
 
 	void Initialize() {
@@ -182,8 +191,11 @@ namespace Graphics::Renderer {
 		rpInfo.pNext = &atInfo;
 		cmd.beginRenderPass(rpInfo, vk::SubpassContents::eInline);
 
+		// This is the equivalent to glUseProgram. Every draw command after this will use the given Pipeline.
 		cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, g_TestPipe);
 
+		// Since we created our Pipeline with dynamic Viewport and Scissor sizes, we need to specify
+		// those dimensions before we draw anything.
 		auto extent = wnd.GetExtent();
 		cmd.setViewport(0, vk::Viewport{
 			0.0f, 0.0f, (float)extent.width, (float)extent.height, 0.0f, 1.0f
@@ -193,6 +205,8 @@ namespace Graphics::Renderer {
 			extent
 		});
 
+		// Roughly equivalent to glDrawArrays, but for now, we don't use any vertex buffers.
+		// The vertices are specified directly in our hlsl source code (triangle.hlsl)
 		cmd.draw(3, 1, 0, 0);
 
 		cmd.endRenderPass();
