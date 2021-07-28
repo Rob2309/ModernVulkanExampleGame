@@ -48,10 +48,17 @@ namespace Graphics::Manager {
 			return false;
 		}
 
+		// This will load all functions needed for creating a vk::Instance.
 		VULKAN_HPP_DEFAULT_DISPATCHER.init(glfwGetInstanceProcAddress);
 
+		// Choose the instance extensions we want to use.
 		auto exts = ChooseInstanceExtensions();
 
+		/*
+		 * This struct is mainly used to specify which Vulkan API version our application is designed to use.
+		 * The application name, version and engine name, version is probably completely ignored by the driver.
+		 * The Spec states that this info can be used by the driver to optimize certain applications.
+		 */
 		vk::ApplicationInfo appInfo{
 			"Modern Vulkan Block Game",
 			VK_MAKE_VERSION(0, 0, 1),
@@ -73,20 +80,28 @@ namespace Graphics::Manager {
 			Log::Error("Failed to create vulkan instance: {}", e.what());
 			return false;
 		}
+		// This will load all functions that are instance-specific (e.g. enumeratePhysicalDevices()).
 		VULKAN_HPP_DEFAULT_DISPATCHER.init(g_Instance);
 
+		// Choose an appropriate physical device for our application.
 		g_PhysicalDevice = ChoosePhysicalDevice(g_GraphicsQueueFamily, g_TransferQueueFamily);
 		if(!g_PhysicalDevice) {
 			Log::Error("No suitable physical device found");
 			return false;
 		}
 
+		// Retrieve and print device info for informational purposes.
 		auto props = g_PhysicalDevice.getProperties2().properties;
 		Log::Info("Using Physical Device {} with Vulkan Version {}.{}", props.deviceName, VK_API_VERSION_MAJOR(props.apiVersion), VK_API_VERSION_MINOR(props.apiVersion));
 		Log::Info("Using Queue Family {} for graphics", g_GraphicsQueueFamily);
 		Log::Info("Using Queue Family {} for async transfer", g_TransferQueueFamily);
 
 		float dummy = 1.0f;
+		/*
+		 * This array contains an entry for every queue family we want to use. For an explanation of queue families, see IsPhysicalDeviceSuitable().
+		 * For every queue family, we specify how many of its queues we want to use and with which priority they should be scheduled.
+		 * I have never seen anyone use a priority different from 1.0f, as the impact of the priorities is pretty vaguely described in the spec.
+		 */
 		std::array queueInfos {
 			vk::DeviceQueueCreateInfo { {}, g_GraphicsQueueFamily, 1, &dummy },
 			vk::DeviceQueueCreateInfo { {}, g_TransferQueueFamily, 1, &dummy },
@@ -107,8 +122,10 @@ namespace Graphics::Manager {
 			Log::Error("Failed to create vulkan device: {}", e.what());
 			return false;
 		}
+		// This will load all functions that are specific to our newly created device, e.g. createGraphicsPipeline etc.
 		VULKAN_HPP_DEFAULT_DISPATCHER.init(g_Device);
 
+		// Here we retrieve handles to the queues we specified above.
 		g_GraphicsQueue = g_Device.getQueue(g_GraphicsQueueFamily, 0);
 		g_TransferQueue = g_Device.getQueue(g_TransferQueueFamily, 0);
 
@@ -149,14 +166,16 @@ namespace Graphics::Manager {
 		uint32_t numGlfwExts;
 		auto glfwExts = glfwGetRequiredInstanceExtensions(&numGlfwExts);
 
+		// Since every GLFW extension is required, we just push it into the result vector.
 		std::vector<const char*> exts;
 		for(uint32_t i = 0; i < numGlfwExts; i++) {
 			exts.push_back(glfwExts[i]);
 		}
 
+		// retrieve information about all the extensions our instance supports.
 		auto props = vk::enumerateInstanceExtensionProperties();
 		for(const auto& p : props) {
-			// It seems that extended swapchain color spaces will work without enabling this extensions, but we do it anyways.
+			// If the swapchain_color_space extension is supported, we want to enable it.
 			if(strcmp(p.extensionName, VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME) == 0) {
 				exts.push_back(VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME);
 				Log::Info("Instance supports HDR");
@@ -199,6 +218,20 @@ namespace Graphics::Manager {
 				return false;
 		}
 
+		/*
+		 * In the following code, we choose "queue families" which we want to use. A Queue family is a collection of at least one queue that share the same usage properties.
+		 * Think of a queue as a hardware line through which we can send commands to a Vulkan Device. Each queue operates mostly independent of the other queues, meaning that
+		 * they can be used from different threads etc. This is one huge advantage over OpenGL, where we only have a context that can be accessed from a single thread only.
+		 * With Vulkan, we choose which queue should receive commands from which application thread.
+		 * 
+		 * What commands we can issue through a specific queue is specified by its queue family. For example, a queue family that supports only compute commands will not be able
+		 * to receive any graphics related commands.
+		 *
+		 * Below we search for a queue family that supports graphics commands as well as presenting images to a swapchain. This will be called our graphics queue.
+		 * Additionally, we search for a queue that only supports transfer commands (e.g. buffer copy commands), since such a queue is very good for background loading
+		 * on desktop hardware.
+		 */
+		
 		auto qFamilies = physDev.getQueueFamilyProperties();
 		uint32_t gfxQueueFamily = -1;
 		uint32_t transferQueueFamily = -1;
@@ -230,6 +263,7 @@ namespace Graphics::Manager {
 	}
 
 	static vk::PhysicalDevice ChoosePhysicalDevice(uint32_t& outGfxQf, uint32_t& outTransferQf) {
+		// retrieve information about every physical device our instance knows of.
 		auto devs = g_Instance.enumeratePhysicalDevices();
 		for(const auto& dev : devs) {
 			if (IsPhysicalDeviceSuitable(dev, outGfxQf, outTransferQf))
