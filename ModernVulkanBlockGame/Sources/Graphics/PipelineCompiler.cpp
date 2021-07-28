@@ -1,6 +1,7 @@
 #include "PipelineCompiler.h"
 
 #include "Manager.h"
+#include "Vertex.h"
 
 #include <filesystem>
 #include <fstream>
@@ -51,14 +52,25 @@ namespace Graphics::PipelineCompiler {
         };
 
     	/*
-    	 * Here we would specify Vertex Attributes and Bindings that the Vertex Shader would receive.
+    	 * Here we specify Vertex Attributes and Bindings that the Vertex Shader will receive.
     	 * Equivalent functionality is available in OpenGL via glVertexAttribPointer/glVertexAttribFormat/glVertexAttribBinding.
-    	 * The Vertex shader would receive this data via
+    	 * The Vertex shader will receive this data via
     	 *      layout (location=XXX) in vec3 ...; in GLSL
-    	 * or simple in variables in HLSL.
+    	 *      or simple input variables in HLSL (see struct Vertex in triangle.hlsl).
     	 */
+        std::array vertexBindings{
+            vk::VertexInputBindingDescription { 0, sizeof(Vertex), vk::VertexInputRate::eVertex }, // Vertex buffer at binding zero contains vertices of size sizeof(Vertex).
+        };
+        std::array vertexAttribs{
+            // Vertex Attribute 0 is 3 32-bit floats, starting at byte 0 (offsetof(Vertex, x)) of each Vertex.
+            vk::VertexInputAttributeDescription { 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, x) },
+            // Vertex Attribute 1 is 3 32-bit floats, starting at byte 12 (offsetof(Vertex, r)) of each Vertex.
+            vk::VertexInputAttributeDescription { 1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, r) },
+        };
         vk::PipelineVertexInputStateCreateInfo vertexInput {
-            {}, {}, {}
+            {},
+            vertexBindings,
+            vertexAttribs,
         };
 
     	/*

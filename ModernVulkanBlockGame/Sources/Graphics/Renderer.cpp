@@ -3,6 +3,7 @@
 #include "Manager.h"
 #include "Renderpasses.h"
 #include "PipelineCompiler.h"
+#include "Vertex.h"
 
 namespace Graphics::Renderer {
 
@@ -50,6 +51,11 @@ namespace Graphics::Renderer {
 	/// </summary>
 	static vk::Pipeline g_TestPipe;
 
+	/// <summary>
+	/// Information about our VertexBuffer.
+	/// </summary>
+	static Manager::BufferInfo g_VertexBuffer;
+
 	void Initialize() {
 		Renderpasses::Initialize();
 
@@ -84,10 +90,28 @@ namespace Graphics::Renderer {
 			{}, {}, {}
 		});
 		g_TestPipe = PipelineCompiler::Compile("Assets/Shaders/triangle", g_TestPipeLayout, Renderpasses::Get3DPass(), 0);
+
+		// Create a VertexBuffer to hold our three vertices.
+		g_VertexBuffer = Manager::CreateBuffer(sizeof(Vertex) * 3, vk::BufferUsageFlagBits::eVertexBuffer, Manager::BufferType::Staging);
+		// Map the buffer into application-visible memory, so we can copy data to the buffer.
+		auto buffer = Manager::MapAllocation(g_VertexBuffer.allocation);
+
+		// copy the data into the buffer.
+		Vertex vertices[]{
+			{ -1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f },
+			{ 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+			{ 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+		};
+		memcpy(buffer, vertices, sizeof(vertices));
+
+		// unmap the buffer as we don't need to access it anymore.
+		Manager::UnmapAllocation(g_VertexBuffer.allocation);
 	}
 
 	void Terminate() {
 		const auto& dev = Manager::GetDevice();
+
+		Manager::DestroyBuffer(g_VertexBuffer);
 
 		dev.destroyPipeline(g_TestPipe);
 		dev.destroyPipelineLayout(g_TestPipeLayout);
@@ -175,11 +199,12 @@ namespace Graphics::Renderer {
 		auto& cmd = g_CommandBuffers[g_FrameCounter];
 
 		vk::CommandBufferBeginInfo cmdInfo{
-			vk::CommandBufferUsageFlagBits::eOneTimeSubmit
+			vk::CommandBufferUsageFlagBits::eOneTimeSubmit // This CommandBuffer will only be submitted once before it will be recorded again.
 		};
 		cmd.begin(cmdInfo);
 
-		vk::ClearValue clearColor{ vk::ClearColorValue{std::array{1.0f, 0.0f, 1.0f, 1.0f}} };
+		// Here we specify which color the color attachment should be cleared to.
+		vk::ClearValue clearColor{ vk::ClearColorValue{std::array{0.2f, 0.2f, 0.2f, 1.0f}} };
 		vk::RenderPassBeginInfo rpInfo{
 			Renderpasses::Get3DPass(), g_3DFramebuffer, vk::Rect2D{{0, 0}, wnd.GetExtent()},
 			clearColor
@@ -205,8 +230,11 @@ namespace Graphics::Renderer {
 			extent
 		});
 
-		// Roughly equivalent to glDrawArrays, but for now, we don't use any vertex buffers.
-		// The vertices are specified directly in our hlsl source code (triangle.hlsl)
+		// Since our shader expects a VertexBuffer containing data at binding 0, we need to tell Vulkan which buffer to use.
+		cmd.bindVertexBuffers(0, g_VertexBuffer.buffer, { 0 });
+
+		// Roughly equivalent to glDrawArraysInstanced.
+		// The vertex data is located in our vertex buffer.
 		cmd.draw(3, 1, 0, 0);
 
 		cmd.endRenderPass();

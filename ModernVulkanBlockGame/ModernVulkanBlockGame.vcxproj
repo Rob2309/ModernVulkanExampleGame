@@ -47,14 +47,14 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Build\Bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(ProjectDir)Sources\;$(VK_SDK_PATH)\Include\;$(SolutionDir)ThirdParty\GLFW\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Sources\;$(VK_SDK_PATH)\Include\;$(SolutionDir)ThirdParty\GLFW\include\;$(SolutionDir)ThirdParty\VulkanMemoryAllocator\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(VK_SDK_PATH)\Lib\;$(SolutionDir)ThirdParty\GLFW\lib64\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Build\Bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(ProjectDir)Sources\;$(VK_SDK_PATH)\Include\;$(SolutionDir)ThirdParty\GLFW\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Sources\;$(VK_SDK_PATH)\Include\;$(SolutionDir)ThirdParty\GLFW\include\;$(SolutionDir)ThirdParty\VulkanMemoryAllocator\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(VK_SDK_PATH)\Lib\;$(SolutionDir)ThirdParty\GLFW\lib64\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -112,6 +112,7 @@
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\Graphics\Allocator.cpp" />
     <ClCompile Include="Sources\Graphics\Manager.cpp" />
     <ClCompile Include="Sources\Graphics\PipelineCompiler.cpp" />
     <ClCompile Include="Sources\Graphics\Renderer.cpp" />
@@ -124,6 +125,7 @@
     <ClInclude Include="Sources\Graphics\PipelineCompiler.h" />
     <ClInclude Include="Sources\Graphics\Renderer.h" />
     <ClInclude Include="Sources\Graphics\Renderpasses.h" />
+    <ClInclude Include="Sources\Graphics\Vertex.h" />
     <ClInclude Include="Sources\Graphics\Window.h" />
     <ClInclude Include="Sources\Logging\Log.h" />
   </ItemGroup>

@@ -1,5 +1,8 @@
 
 struct Vertex {
+    float3 position;
+    float3 color;
+
     int index : SV_VERTEXID;
 };
 
@@ -12,21 +15,9 @@ struct Fragment {
     float4 color : SV_TARGET0;
 };
 
-static const float3 g_Positions[] = {
-    float3(-1.0, 1.0, 0.0),
-    float3(0.0, -1.0, 0.0),
-    float3(1.0, 1.0, 0.0),
-};
-
-static const float3 g_Colors[] = {
-    float3(1.0, 0.0, 0.0),
-    float3(0.0, 1.0, 0.0),
-    float3(0.0, 0.0, 1.0),
-};
-
 void vert(in Vertex i, out V2F o) {
-    o.position = float4(g_Positions[i.index], 1.0);
-    o.color = g_Colors[i.index];
+    o.position = float4(i.position, 1.0);
+    o.color = i.color;
 }
 
 void frag(in V2F i, out Fragment o) {

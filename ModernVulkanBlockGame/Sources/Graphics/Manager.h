@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
+#include <vk_mem_alloc.h>
 
 namespace Graphics::Manager {
 
@@ -28,6 +29,20 @@ namespace Graphics::Manager {
 
 	/// <returns>The Vulkan Device in use</returns>
 	[[nodiscard]] vk::Device GetDevice();
+
+	struct BufferInfo {
+		VmaAllocation allocation;
+		vk::Buffer buffer;
+	};
+	enum class BufferType {
+		Gpu,
+		Staging,
+	};
+	[[nodiscard]] BufferInfo CreateBuffer(uint64_t size, vk::BufferUsageFlags usage, BufferType type);
+	void DestroyBuffer(const BufferInfo& info);
+
+	void* MapAllocation(const VmaAllocation& alloc);
+	void UnmapAllocation(const VmaAllocation& alloc);
 
 	/// <summary>
 	/// Blocks until the Vulkan Device is idling, must be called before destroying e.g. a swapchain.

@@ -19,6 +19,8 @@ namespace Graphics::Manager {
 	static uint32_t g_TransferQueueFamily;
 	static vk::Queue g_TransferQueue;
 
+	static VmaAllocator g_Allocator;
+
 	/// <summary>
 	/// Contains the device extensions that are absolutely required.
 	/// </summary>
@@ -129,10 +131,24 @@ namespace Graphics::Manager {
 		g_GraphicsQueue = g_Device.getQueue(g_GraphicsQueueFamily, 0);
 		g_TransferQueue = g_Device.getQueue(g_TransferQueueFamily, 0);
 
+		// Since Memory management is a very complex topic in Vulkan, we will just use a
+		// very widely used library called VulkanMemoryAllocator.
+		VmaAllocatorCreateInfo allocatorInfo{};
+		allocatorInfo.instance = g_Instance;
+		allocatorInfo.physicalDevice = g_PhysicalDevice;
+		allocatorInfo.device = g_Device;
+		auto err = vmaCreateAllocator(&allocatorInfo, &g_Allocator);
+		if(err != VK_SUCCESS) {
+			Log::Error("Failed to initialize Vulkan Memory Allocator");
+			return false;
+		}
+
 		return true;
 	}
 
 	void Terminate() {
+		vmaDestroyAllocator(g_Allocator);
+
 		g_Device.destroy();
 		g_Instance.destroy();
 	}
@@ -155,6 +171,38 @@ namespace Graphics::Manager {
 
 	vk::Device GetDevice() {
 		return g_Device;
+	}
+
+	BufferInfo CreateBuffer(uint64_t size, vk::BufferUsageFlags usage, BufferType type) {
+		vk::BufferCreateInfo bufferInfo{
+			{}, size,
+			usage,
+			vk::SharingMode::eExclusive
+		};
+		VmaAllocationCreateInfo allocInfo{};
+		switch (type) {
+		case BufferType::Gpu: allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY; break;
+		case BufferType::Staging: allocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY; break;
+		}
+
+		VkBuffer buffer;
+		VmaAllocation alloc;
+		vmaCreateBuffer(g_Allocator, &static_cast<VkBufferCreateInfo&>(bufferInfo), &allocInfo, &buffer, &alloc, nullptr);
+
+		return { alloc, buffer };
+	}
+
+	void DestroyBuffer(const BufferInfo& info) {
+		vmaDestroyBuffer(g_Allocator, info.buffer, info.allocation);
+	}
+
+	void* MapAllocation(const VmaAllocation& alloc) {
+		void* res;
+		vmaMapMemory(g_Allocator, alloc, &res);
+		return res;
+	}
+	void UnmapAllocation(const VmaAllocation& alloc) {
+		vmaUnmapMemory(g_Allocator, alloc);
 	}
 
 	void WaitIdle() {
