@@ -2,9 +2,21 @@
 
 #include <source_location>
 #include <iostream>
+
+#ifdef __linux__
+// Since neither g++11 nor any clang version supports std::format, we need to use an external library
+#include <fmt/format.h>
+#else
 #include <format>
+#endif
 
 namespace Log {
+
+#ifdef __linux__
+	using fmt::format;
+#else
+	using std::format;
+#endif
 
 #ifdef NDEBUG
 	inline constinit auto ENABLE_INFO_LOG = false;
@@ -17,7 +29,7 @@ namespace Log {
 	/// </summary>
 	template<typename T>
 	concept Printable = requires(const T& obj) {
-		{ std::format("{}", obj) } -> std::convertible_to<std::string>;
+		{ format("{}", obj) } -> std::convertible_to<std::string>;
 	};
 
 	/// <summary>
@@ -40,7 +52,7 @@ namespace Log {
 	template<Printable... Args>
 	void Info(const FormatWithSourceLoc fmt, Args&&... args) {
 		if /*consteval*/ (ENABLE_INFO_LOG) {
-			auto msg = std::format(fmt.fmt, args...);
+			auto msg = format(fmt.fmt, args...);
 			std::cout << "[INFO ] " << msg << "\n    at " << fmt.loc.file_name() << ":" << fmt.loc.line() << "\n";
 		}
 	}
@@ -52,7 +64,7 @@ namespace Log {
 	/// <param name="...args">Formatting arguments</param>
 	template<Printable... Args>
 	void Warning(const FormatWithSourceLoc fmt, Args&&... args) {
-		auto msg = std::format(fmt.fmt, args...);
+		auto msg = format(fmt.fmt, args...);
 		std::cout << "\033[33m[WARN ] " << msg << "\n    at " << fmt.loc.file_name() << ":" << fmt.loc.line() << "\n\033[0m";
 	}
 
@@ -63,7 +75,7 @@ namespace Log {
 	/// <param name="...args">Formatting arguments</param>
 	template<Printable... Args>
 	void Error(const FormatWithSourceLoc fmt, Args&&... args) {
-		auto msg = std::format(fmt.fmt, args...);
+		auto msg = format(fmt.fmt, args...);
 		std::cout << "\033[31m[ERROR] " << msg << "\n    at " << fmt.loc.file_name() << ":" << fmt.loc.line() << "\n\033[0m";
 	}
 	

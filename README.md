@@ -14,6 +14,15 @@ Concepts I plan to touch on currently include:
 
 Feel free to suggest features that you are interested in.
 
+## Building and running
+To build on windows, just open the Visual Studio solution and build/run the project.
+
+Building on Linux requires g++-11 or a compatible clang version (not tested).
+On Ubuntu, install the following packages:
+`sudo apt install libglfw3-dev libfmt-dev vulkan-sdk`.
+On other distros, find the corresponding packages.
+Then run `make build` or `make run` from the root folder.
+
 ## Useful resources
 - Vulkan Spec: https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/index.html
 - Vulkan examples: https://github.com/SaschaWillems/Vulkan
