@@ -2,6 +2,7 @@
 
 #include "Manager.h"
 #include "Renderpasses.h"
+#include "PipelineCompiler.h"
 
 namespace Graphics::Renderer {
 
@@ -37,6 +38,9 @@ namespace Graphics::Renderer {
 	/// </summary>
 	static vk::Framebuffer g_3DFramebuffer;
 
+	static vk::PipelineLayout g_TestPipeLayout;
+	static vk::Pipeline g_TestPipe;
+
 	void Initialize() {
 		Renderpasses::Initialize();
 
@@ -66,10 +70,18 @@ namespace Graphics::Renderer {
 				g_CommandPool, vk::CommandBufferLevel::ePrimary, (uint32_t)MAX_FRAMES_IN_FLIGHT
 		};
 		g_CommandBuffers = dev.allocateCommandBuffers(cbInfo);
+
+		g_TestPipeLayout = Manager::GetDevice().createPipelineLayout({
+			{}, {}, {}
+		});
+		g_TestPipe = PipelineCompiler::Compile("Assets/Shaders/triangle", g_TestPipeLayout, Renderpasses::Get3DPass(), 0);
 	}
 
 	void Terminate() {
 		const auto& dev = Manager::GetDevice();
+
+		dev.destroyPipeline(g_TestPipe);
+		dev.destroyPipelineLayout(g_TestPipeLayout);
 
 		dev.destroyFramebuffer(g_3DFramebuffer);
 		// destroying the CommandPool automatically destroys all allocated CommandBuffers.
@@ -170,7 +182,18 @@ namespace Graphics::Renderer {
 		rpInfo.pNext = &atInfo;
 		cmd.beginRenderPass(rpInfo, vk::SubpassContents::eInline);
 
-		// actual rendering commands would go here. For now we just begin and end the RenderPass to clear the screen.
+		cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, g_TestPipe);
+
+		auto extent = wnd.GetExtent();
+		cmd.setViewport(0, vk::Viewport{
+			0.0f, 0.0f, (float)extent.width, (float)extent.height, 0.0f, 1.0f
+		});
+		cmd.setScissor(0, vk::Rect2D {
+			vk::Offset2D{0, 0},
+			extent
+		});
+
+		cmd.draw(3, 1, 0, 0);
 
 		cmd.endRenderPass();
 		cmd.end();
