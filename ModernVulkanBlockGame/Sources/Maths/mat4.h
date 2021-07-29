@@ -57,7 +57,7 @@ struct mat4 {
 		mat4 res;
 		res.values[RC(0, 3)] = t.x;
 		res.values[RC(1, 3)] = t.y;
-		res.values[RC(1, 3)] = t.z;
+		res.values[RC(2, 3)] = t.z;
 		return res;
 	}
 	static mat4 Rotate(const Quaternion& t) {
@@ -105,6 +105,21 @@ struct mat4 {
 		res.values[RC(2, 3)] = (-far * near) / (far - near);
 		res.values[RC(3, 2)] = 1.0f;
 		res.values[RC(3, 3)] = 0.0f;
+		return res;
+	}
+
+	static mat4 Orthographic(float l, float r, float b, float t, float n, float f) {
+		mat4 res;
+
+		res.values[RC(0, 0)] = 2.0f / (r - l);
+		res.values[RC(0, 3)] = (-l - r) / (r - l);
+
+		res.values[RC(1, 1)] = 2.0f / (t - b);
+		res.values[RC(1, 3)] = (-b - t) / (t - b);
+
+		res.values[RC(2, 2)] = 1.0f / (f - n);
+		res.values[RC(2, 3)] = -n / (f - n);
+
 		return res;
 	}
 	

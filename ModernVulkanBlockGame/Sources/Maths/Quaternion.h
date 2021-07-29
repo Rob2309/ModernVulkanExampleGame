@@ -11,9 +11,11 @@ struct Quaternion {
 	Quaternion(float x, float y, float z, float w)
 		: x{x}, y{y}, z{z}, w{w}
 	{ }
-	Quaternion(const vec3& axis, float rad)
+	Quaternion(vec3 axis, float rad)
 		: w{std::cos(rad * 0.5f)}
 	{
+		axis.Normalize();
+		
 		auto s = std::sin(rad * 0.5f);
 		x = axis.x * s;
 		y = axis.y * s;
@@ -56,7 +58,7 @@ struct Quaternion {
 
 	Quaternion operator*(const Quaternion& r) const {
 		float nx = w * r.x + x * r.w + y * r.z - z * r.y;
-		float ny = w * r.y + y * r.w + z * r.x - x * r.w;
+		float ny = w * r.y + y * r.w + z * r.x - x * r.z;
 		float nz = w * r.z + z * r.w + x * r.y - y * r.x;
 		float nw = w * r.w - x * r.x - y * r.y - z * r.z;
 		return Quaternion{ nx, ny, nz, nw };
@@ -68,7 +70,7 @@ struct Quaternion {
 
 	vec3 Rotate(const vec3& r) const {
 		// TODO: use optimized formula
-		auto res = *this * Quaternion{ r.x, r.y, r.z, 0 } *-*this;
+		auto res = *this * Quaternion{ r.x, r.y, r.z, 0 } * (-*this);
 		return vec3{ res.x, res.y, res.z };
 	}
 	vec3 operator*(const vec3& r) const {
