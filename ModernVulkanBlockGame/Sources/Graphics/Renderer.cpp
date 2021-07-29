@@ -4,6 +4,8 @@
 #include "Renderpasses.h"
 #include "PipelineCompiler.h"
 #include "Vertex.h"
+#include "GLFW/glfw3.h"
+#include "Maths/Maths.h"
 
 namespace Graphics::Renderer {
 
@@ -86,21 +88,30 @@ namespace Graphics::Renderer {
 		};
 		g_CommandBuffers = dev.allocateCommandBuffers(cbInfo);
 
+		std::array pushConstants{
+			vk::PushConstantRange {
+				vk::ShaderStageFlagBits::eVertex, 0, sizeof(mat4) * 2
+			},
+		};
 		g_TestPipeLayout = Manager::GetDevice().createPipelineLayout({
-			{}, {}, {}
+			{}, {}, pushConstants
 		});
 		g_TestPipe = PipelineCompiler::Compile("Assets/Shaders/triangle", g_TestPipeLayout, Renderpasses::Get3DPass(), 0);
 
 		// Create a VertexBuffer to hold our three vertices.
-		g_VertexBuffer = Manager::CreateBuffer(sizeof(Vertex) * 3, vk::BufferUsageFlagBits::eVertexBuffer, Manager::BufferType::Staging);
+		g_VertexBuffer = Manager::CreateBuffer(sizeof(Vertex) * 6, vk::BufferUsageFlagBits::eVertexBuffer, Manager::BufferType::Staging);
 		// Map the buffer into application-visible memory, so we can copy data to the buffer.
 		auto buffer = Manager::MapAllocation(g_VertexBuffer.allocation);
 
 		// copy the data into the buffer.
 		Vertex vertices[] {
-			{ {-1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f} },
-			{ {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f} },
-			{ {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} },
+			{ {-1.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f} },
+			{ {-1.0f,  1.0f, 0.0f}, {0.0f, 1.0f, 0.0f} },
+			{ { 1.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} },
+
+			{ {-1.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f} },
+			{ { 1.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} },
+			{ { 1.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 1.0f} },
 		};
 		memcpy(buffer, vertices, sizeof(vertices));
 
@@ -223,19 +234,26 @@ namespace Graphics::Renderer {
 		// those dimensions before we draw anything.
 		auto extent = wnd.GetExtent();
 		cmd.setViewport(0, vk::Viewport{
-			0.0f, 0.0f, (float)extent.width, (float)extent.height, 0.0f, 1.0f
+			0.0f, (float)extent.height, (float)extent.width, -(float)extent.height, 0.0f, 1.0f
 		});
 		cmd.setScissor(0, vk::Rect2D {
 			vk::Offset2D{0, 0},
 			extent
 		});
 
+		float time = glfwGetTime();
+		std::array constants{
+			mat4::LocalToWorld(vec3{0, 0, 5.0f}, Quaternion{vec3{0, 0, 1}, ToRadians(180.0f * time)}, vec3{1, 1, 1}),
+			mat4::Perspective(ToRadians(60.0f), 0.01f, 100.0f, (float)extent.width / (float)extent.height),
+		};
+		cmd.pushConstants(g_TestPipeLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(constants), constants.data());
+		
 		// Since our shader expects a VertexBuffer containing data at binding 0, we need to tell Vulkan which buffer to use.
 		cmd.bindVertexBuffers(0, g_VertexBuffer.buffer, { 0 });
 
 		// Roughly equivalent to glDrawArraysInstanced.
 		// The vertex data is located in our vertex buffer.
-		cmd.draw(3, 1, 0, 0);
+		cmd.draw(6, 1, 0, 0);
 
 		cmd.endRenderPass();
 		cmd.end();
