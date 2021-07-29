@@ -62,10 +62,10 @@ namespace Graphics::PipelineCompiler {
             vk::VertexInputBindingDescription { 0, sizeof(Vertex), vk::VertexInputRate::eVertex }, // Vertex buffer at binding zero contains vertices of size sizeof(Vertex).
         };
         std::array vertexAttribs{
-            // Vertex Attribute 0 is 3 32-bit floats, starting at byte 0 (offsetof(Vertex, x)) of each Vertex.
-            vk::VertexInputAttributeDescription { 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, x) },
-            // Vertex Attribute 1 is 3 32-bit floats, starting at byte 12 (offsetof(Vertex, r)) of each Vertex.
-            vk::VertexInputAttributeDescription { 1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, r) },
+            // Vertex Attribute 0 is 3 32-bit floats, starting at byte 0 (offsetof(Vertex, position)) of each Vertex.
+            vk::VertexInputAttributeDescription { 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position) },
+            // Vertex Attribute 1 is 3 32-bit floats, starting at byte 12 (offsetof(Vertex, color)) of each Vertex.
+            vk::VertexInputAttributeDescription { 1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color) },
         };
         vk::PipelineVertexInputStateCreateInfo vertexInput {
             {},

@@ -128,6 +128,12 @@
     <ClInclude Include="Sources\Graphics\Vertex.h" />
     <ClInclude Include="Sources\Graphics\Window.h" />
     <ClInclude Include="Sources\Logging\Log.h" />
+    <ClInclude Include="Sources\Maths\mat4.h" />
+    <ClInclude Include="Sources\Maths\Maths.h" />
+    <ClInclude Include="Sources\Maths\Quaternion.h" />
+    <ClInclude Include="Sources\Maths\vec2.h" />
+    <ClInclude Include="Sources\Maths\vec3.h" />
+    <ClInclude Include="Sources\Maths\vec4.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ThirdParty\GLFW.vcxproj">

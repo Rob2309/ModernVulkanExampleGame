@@ -1,10 +1,12 @@
 #pragma once
 
+#include "Maths/vec3.h"
+
 namespace Graphics {
 
 	struct Vertex {
-		float x, y, z;
-		float r, g, b;
+		vec3 position;
+		vec3 color;
 	};
 
 }

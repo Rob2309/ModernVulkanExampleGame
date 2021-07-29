@@ -97,10 +97,10 @@ namespace Graphics::Renderer {
 		auto buffer = Manager::MapAllocation(g_VertexBuffer.allocation);
 
 		// copy the data into the buffer.
-		Vertex vertices[]{
-			{ -1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-			{ 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f },
-			{ 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+		Vertex vertices[] {
+			{ {-1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f} },
+			{ {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f} },
+			{ {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} },
 		};
 		memcpy(buffer, vertices, sizeof(vertices));
 
