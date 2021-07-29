@@ -1,6 +1,6 @@
 
 CXX := g++
-CXXFLAGS := -std=c++20 -I./Sources -DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1 -static-libstdc++
+CXXFLAGS := -std=c++20 -I./Sources -DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1 -static-libstdc++ -I../ThirdParty/VulkanMemoryAllocator/include
 LDFLAGS := -std=c++20 -lfmt -lvulkan -lglfw -static-libstdc++
 
 config:=Debug
