@@ -69,9 +69,19 @@ struct Quaternion {
 	}
 
 	vec3 Rotate(const vec3& r) const {
-		// TODO: use optimized formula
-		auto res = *this * Quaternion{ r.x, r.y, r.z, 0 } * (-*this);
-		return vec3{ res.x, res.y, res.z };
+		float x2 = x * x;
+		float y2 = y * y;
+		float z2 = z * z;
+		float w2 = w * w;
+
+		float xx = x * r.x;
+		float yy = y * r.y;
+		float zz = z * r.z;
+
+		float nx = r.x * (x2 - y2 - z2 + w2) + 2.0f * (x * yy + x * zz + w * y * r.z - w * z * r.y);
+		float ny = r.y * (-x2 + y2 - z2 + w2) + 2.0f * (y * xx + y * zz + w * z * r.x - w * x * r.z);
+		float nz = r.z * (-x2 - y2 + z2 + w2) + 2.0f * (z * xx + z * yy + w * x * r.y + w * y * r.x);
+		return vec3{ nx, ny, nz };
 	}
 	vec3 operator*(const vec3& r) const {
 		return Rotate(r);
@@ -91,13 +101,25 @@ struct Quaternion {
 	}
 
 	vec3 Right() const {
-		return *this * vec3{ 1.0f, 0.0f, 0.0f };
+		return vec3{
+			x * x - y * y - z * z + w * w,
+			2.0f * (z * w + x * y),
+			2.0f * (x * z - y * w)
+		};
 	}
 	vec3 Up() const {
-		return *this * vec3{ 0.0f, 1.0f, 0.0f };
+		return vec3{
+			2.0f * (x * y - z * w),
+			-x * x + y * y - z * z + w * w,
+			2.0f * (x * w + y * z),
+		};
 	}
 	vec3 Forward() const {
-		return *this * vec3{ 0.0f, 0.0f, 1.0f };
+		return vec3{
+			2.0f * (x * z + y * w),
+			2.0f * (y * z - x * w),
+			-x * x - y * y + z * z + w * w,
+		};
 	}
 
 	bool operator==(const Quaternion& r) const = default;
